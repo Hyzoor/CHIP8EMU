@@ -18,4 +18,4 @@ private:
     void initSprites();
 };
 
-#endif // MEMORY_H
+#endif

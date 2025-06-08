@@ -1,22 +1,31 @@
 #include <iostream>
+#include <SDL2/SDL.h>
 #include "../include/Memory.h"
+#include "../include/Display.h"
+#include "../include/CPU.h"
+#include "../include/Platform.h"
 
 
 int main(){
+ 
 
-
+    
     Memory memory;
+    Display display;
+
     std::string romPath = "../roms/test1.ch8";
+    memory.loadROM(romPath);
 
-    try{
+    Platform platform("CHIP8-Emulator", VIDEO_WIDTH*PIXEL_SIZE, VIDEO_HEIGHT*PIXEL_SIZE, VIDEO_WIDTH, VIDEO_HEIGHT);
 
-        memory.loadROM(romPath);
+    CPU cpu(memory, display);
 
-        std::cout << "Rom cargado correctamente\n\n";
-        
-    }catch(std::runtime_error){
-        std::cout << "No se ha podido leer correctamente el rom\n\n";
+    while(true){
+
+        cpu.clockCycle();
+        platform.Update(display.screenBuffer,16);
     }
 
     return 0;
 }
+

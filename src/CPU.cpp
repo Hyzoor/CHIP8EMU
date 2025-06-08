@@ -2,8 +2,9 @@
 #include <cstdint>
 #include <stdexcept>
 
-CPU::CPU(const Memory &memory){
+CPU::CPU(const Memory &memory, const Display &display){
     RAM = memory;
+    this->display = display;
     init();
 }
 
@@ -18,12 +19,20 @@ void CPU::init(){
     programCounter = 0x200;
 }
 
+void CPU::clockCycle(){
+
+    fetchInstruction();
+    programCounter += 0x02;
+    decodeExecuteInstruction();
+
+}
+
 void CPU::fetchInstruction(){
 
     uint8_t msB = RAM.read(programCounter);
     uint8_t lsB = RAM.read(programCounter + 0x1);
-    instruction = msB << 4 | lsB;
-    programCounter += 0x02;
+    instruction = msB << 8 | lsB;
+
 }
 
 uint8_t CPU::getNibble(int i){
@@ -52,7 +61,7 @@ uint8_t CPU::getNibble(int i){
 
 void CPU::decodeExecuteInstruction(){
 
-    uint8_t opcode = instruction & 0xF000;
+    uint8_t opcode = (instruction & 0xF000) >> 12;
     uint8_t x = getNibble(2);
     uint8_t y = getNibble(3);
     uint8_t n = getNibble(4);
@@ -64,7 +73,8 @@ void CPU::decodeExecuteInstruction(){
     case 0x0:
         switch (instruction){
             
-        case 0x00E0: // todo clear screen;
+        case 0x00E0: 
+            display.clearBuffer();
             break;
         }
 
@@ -87,7 +97,39 @@ void CPU::decodeExecuteInstruction(){
         break;
 
     case 0xD:
-        // Draw function;
+    
+        uint8_t Vx = x % display.getWidth();
+        uint8_t Vy = y % display.getHeight();
+
+
+        uint8_t sprite[n];
+        //Read sprite from memory starting at regI address
+        for(int i = 0; i < n; i++){
+            sprite[i] = RAM.read(regI + i);
+        }
+
+        for(int row = 0; row < n; row++){
+
+
+            for(int column = 0; column < 8; column++){
+            
+                bool spritePixel = sprite[row] & (0x80u >> column);
+                bool screenPixel = display.getPixel(Vx + column, Vy + row);
+                
+                display.setPixel(Vx + column, Vy + row, spritePixel xor screenPixel);
+                if(spritePixel == screenPixel == true){
+                    regV[0xF] = 0x1;    //Collision
+                }
+
+
+            }
+        }
+
+        display.drawScreen();
+
+
+
+
         break;
     }
 }
