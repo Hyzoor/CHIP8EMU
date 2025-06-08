@@ -1,0 +1,15 @@
+# CMake
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Archivos binarios
+*.exe
+*.out
+*.o
+*.obj
+
+# VSCode
+.vscode/
