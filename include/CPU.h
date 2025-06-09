@@ -3,18 +3,21 @@
 #include <cstdint>
 #include "../include/Memory.h"
 #include "../include/Display.h"
+#include "../include/Keypad.h"
 
 class CPU{
 
 public:
 
-    CPU(Memory&, Display&);
+    CPU(Memory&, Display&, Keypad&);
     ~CPU();
 
     void init();
     void clockCycle();
     void fetchInstruction();
     void decodeExecuteInstruction();
+    void updateTimers();
+    
     uint8_t getNibble(int);
 
 private:
@@ -27,6 +30,7 @@ private:
     uint16_t instruction;
     Memory &RAM;
     Display &display;
+    Keypad &keypad;
 };
 
 #endif
