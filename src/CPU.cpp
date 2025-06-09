@@ -2,9 +2,7 @@
 #include <cstdint>
 #include <stdexcept>
 
-CPU::CPU(const Memory &memory, const Display &display){
-    RAM = memory;
-    this->display = display;
+CPU::CPU(Memory &memory, Display &display) : RAM(memory), display(display){
     init();
 }
 
@@ -41,13 +39,13 @@ uint8_t CPU::getNibble(int i){
     switch (i){
 
     case 1:
-        nibble = instruction & 0xF000 >> 12;
+        nibble = (instruction & 0xF000) >> 12;
         break;
     case 2:
-        nibble = instruction & 0x0F00 >> 8;
+        nibble = (instruction & 0x0F00) >> 8;
         break;
     case 3:
-        nibble = instruction & 0x00F0 >> 4;
+        nibble = (instruction & 0x00F0) >> 4;
         break;
     case 4:
         nibble = instruction & 0x000F;
@@ -65,16 +63,19 @@ void CPU::decodeExecuteInstruction(){
     uint8_t x = getNibble(2);
     uint8_t y = getNibble(3);
     uint8_t n = getNibble(4);
-    uint8_t nn = y << 4 | n;
-    uint16_t nnn = x << 8 | nn;
+    uint8_t nn = (y << 4) | n;
+    uint16_t nnn = (x << 8) | nn;
 
     switch (opcode){
 
     case 0x0:
         switch (instruction){
             
-        case 0x00E0: 
-            display.clearBuffer();
+            case 0x00E0: 
+                display.clearBuffer();
+                break;
+            default:
+                //inccorecct opcode;
             break;
         }
 
@@ -97,39 +98,40 @@ void CPU::decodeExecuteInstruction(){
         break;
 
     case 0xD:
-    
-        uint8_t Vx = x % display.getWidth();
-        uint8_t Vy = y % display.getHeight();
-
-
-        uint8_t sprite[n];
-        //Read sprite from memory starting at regI address
-        for(int i = 0; i < n; i++){
-            sprite[i] = RAM.read(regI + i);
-        }
+        
+        uint8_t Vx = regV[x] % display.getWidth();
+        uint8_t Vy = regV[y] % display.getHeight();
+        regV[0xF] = 0x0;
 
         for(int row = 0; row < n; row++){
 
 
+            uint8_t spriteByte = RAM.read(regI + row);
+
             for(int column = 0; column < 8; column++){
-            
-                bool spritePixel = sprite[row] & (0x80u >> column);
-                bool screenPixel = display.getPixel(Vx + column, Vy + row);
+
+
+                uint8_t spritePixel = spriteByte & (0x80u >> column);
+                uint32_t screenPixel = display.getPixel(Vx + column, Vy + row);
                 
-                display.setPixel(Vx + column, Vy + row, spritePixel xor screenPixel);
-                if(spritePixel == screenPixel == true){
-                    regV[0xF] = 0x1;    //Collision
+
+                if(spritePixel){
+
+                    
+                    if(screenPixel == 0xFFFFFFFF){
+                        regV[0xF] = 0x1;    //Collision
+                    }
+
+                    
+                    screenPixel ^= 0xFFFFFFFF;
+                    display.setPixel(Vx + column, Vy + row, screenPixel);
+
                 }
 
 
             }
         }
 
-        display.drawScreen();
-
-
-
-
-        break;
+    break;
     }
 }

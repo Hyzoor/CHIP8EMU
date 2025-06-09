@@ -12,36 +12,28 @@
 class Display{
 
 public:
-    bool screenBuffer[VIDEO_WIDTH][VIDEO_HEIGHT]; 
 
 
     Display(SDL_Renderer* renderer);
     Display();
     ~Display();
 
-    bool getPixel(uint8_t, uint8_t);
-    void setPixel(uint8_t, uint8_t, bool value);
+    uint32_t getPixel(uint8_t, uint8_t);
+    void setPixel(uint8_t x, uint8_t y, uint32_t value);
     void clearBuffer();
-    void drawScreen();
 
     uint8_t getHeight();
     uint8_t getWidth();
+    uint32_t* getBuffer();
+
+
 
 private:
 
-
     SDL_Renderer* renderer;
-
+    uint32_t screenBuffer[VIDEO_WIDTH * VIDEO_HEIGHT]{}; 
 
 };
-
-
-
-
-
-
-
-
 
 
 

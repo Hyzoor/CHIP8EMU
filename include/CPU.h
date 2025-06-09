@@ -8,7 +8,7 @@ class CPU{
 
 public:
 
-    CPU(const Memory&, const Display&);
+    CPU(Memory&, Display&);
     ~CPU();
 
     void init();
@@ -25,8 +25,8 @@ private:
     uint16_t programCounter;
     uint8_t stackPointer;
     uint16_t instruction;
-    Display display;
-    Memory RAM;
+    Memory &RAM;
+    Display &display;
 };
 
 #endif
