@@ -1,5 +1,5 @@
-![](test1.png)
-![](test2.png)
-![](pong.png)
+![](screenshots/test1.png)
+![](screenshots/testopcodes.png)
+![](screenshots/pong.png)
 
 
