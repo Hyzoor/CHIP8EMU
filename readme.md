@@ -1,3 +1,5 @@
-![[test1.png]]
-![[test2.png]]
-![[screenshots/pong.png]]
+![](test1.png)
+![](test2.png)
+![](pong.png)
+
+
