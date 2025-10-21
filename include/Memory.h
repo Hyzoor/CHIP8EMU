@@ -3,19 +3,19 @@
 #include <cstdint>
 #include <string>
 
-class Memory{
+class Memory {
 
-public:
-    Memory();
-    ~Memory();
+  public:
+	Memory();
+	~Memory();
 
-    void loadROM(const std::string &);
-    void write(uint16_t, uint8_t);
-    uint8_t read(uint16_t);
+	void loadROM(const std::string &);
+	void write(uint16_t, uint8_t);
+	uint8_t read(uint16_t);
 
-private:
-    uint8_t memoryArray[4096]{};
-    void initSprites();
+  private:
+	uint8_t memoryArray[4096]{};
+	void initSprites();
 };
 
 #endif

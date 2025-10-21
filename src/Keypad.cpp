@@ -1,21 +1,21 @@
 #include "../include/Keypad.h"
 
-Keypad::Keypad(){}
-Keypad::~Keypad(){}
+Keypad::Keypad() {}
+Keypad::~Keypad() {}
 
-void Keypad::setKey(uint8_t key, bool pressed){
-    if(key < NUM_KEYS){
-        keys[key] = pressed;
-    }
+void Keypad::setKey(uint8_t key, bool pressed) {
+	if (key < NUM_KEYS) {
+		keys[key] = pressed;
+	}
 }
 
-bool Keypad::isKeyPressed(uint8_t key){
-    if(key < NUM_KEYS){
-        return keys[key];
-    }
-    return false;
+bool Keypad::isKeyPressed(uint8_t key) {
+	if (key < NUM_KEYS) {
+		return keys[key];
+	}
+	return false;
 }
 
-const bool* Keypad::getKeys(){
-    return keys;
+const bool *Keypad::getKeys() {
+	return keys;
 }

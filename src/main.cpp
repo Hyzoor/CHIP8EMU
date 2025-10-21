@@ -1,66 +1,64 @@
-#include <iostream>
 #include <SDL2/SDL.h>
-#include "../include/Memory.h"
-#include "../include/Display.h"
-#include "../include/CPU.h"
-#include "../include/Platform.h"
-#include "../include/Keypad.h"
 
-#define FPS 1000
-#define frameDelay 1000 / FPS
+#include <iostream>
 
+#include "CPU.h"
+#include "Display.h"
+#include "Keypad.h"
+#include "Memory.h"
+#include "Platform.h"
 
-int main(){
- 
-    Memory memory;
-    Display display;
-    Keypad keypad;
-    CPU cpu(memory, display, keypad);
-    Platform platform("CHIP8-Emulator", VIDEO_WIDTH*PIXEL_SIZE, VIDEO_HEIGHT*PIXEL_SIZE, VIDEO_WIDTH, VIDEO_HEIGHT);
-    
-    std::string romPath = "../roms/games/pong.ch8";
-    memory.loadROM(romPath);
+#define FPS 60
+#define CPU_HZ 600
+#define CYCLES_PER_FRAME (CPU_HZ / FPS)
+#define FRAME_DELAY 1000 / FPS
 
-    bool running = true;
-    SDL_Event event;
+int main() {
+	Memory memory;
+	Display display;
+	Keypad keypad;
+	CPU cpu(memory, display, keypad);
+	Platform platform("CHIP8-Emulator", VIDEO_WIDTH * PIXEL_SIZE, VIDEO_HEIGHT * PIXEL_SIZE, VIDEO_WIDTH, VIDEO_HEIGHT);
 
-    while(running){
+	std::string romPath = "../roms/Pong.ch8";
+	memory.loadROM(romPath);
 
-        uint32_t frameStart = SDL_GetTicks();
+	bool running = true;
+	SDL_Event event;
 
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;  // Close windows
-            }
-            else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+	while (running) {
+		uint32_t frameStart = SDL_GetTicks();
 
-                bool pressed = event.type == SDL_KEYDOWN;
-                SDL_Keycode keycode = event.key.keysym.sym;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				running = false; // Close windows
+			} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+				bool pressed = event.type == SDL_KEYDOWN;
+				SDL_Keycode keycode = event.key.keysym.sym;
 
-                if (platform.getKeymap().count(keycode)) {
-                    uint8_t chip8Key = platform.getKeymap().at(keycode);
-                    keypad.setKey(chip8Key, pressed);
-                }
+				if (platform.getKeymap().count(keycode)) {
+					uint8_t chip8Key = platform.getKeymap().at(keycode);
+					keypad.setKey(chip8Key, pressed);
+				}
 
-                if (pressed && keycode == SDLK_ESCAPE) {
-                    running = false;  // Escape
-                }
-            }
-        }
+				if (pressed && keycode == SDLK_ESCAPE) {
+					running = false; // Escape
+				}
+			}
+		}
 
-        cpu.clockCycle();
-        platform.Update(display.getBuffer(), VIDEO_WIDTH * sizeof(uint32_t));
+		for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+			cpu.clockCycle();
+		}
 
-        uint32_t frameTime = SDL_GetTicks() - frameStart;
+		platform.Update(display.getBuffer());
+		cpu.updateTimers();
 
-        if (frameDelay > frameTime) {
-            SDL_Delay(frameDelay - frameTime);
-        }
+		uint32_t frameTime = SDL_GetTicks() - frameStart;
+		if (FRAME_DELAY > frameTime) {
+			SDL_Delay(FRAME_DELAY - frameTime);
+		}
+	}
 
-    }
-
-    return 0;
+	return 0;
 }
-
-
-
