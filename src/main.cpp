@@ -9,7 +9,7 @@
 #include "Platform.h"
 
 #define FPS 60
-#define CPU_HZ 600
+#define CPU_HZ 500
 #define CYCLES_PER_FRAME (CPU_HZ / FPS)
 #define FRAME_DELAY 1000 / FPS
 
@@ -20,7 +20,7 @@ int main() {
 	CPU cpu(memory, display, keypad);
 	Platform platform("CHIP8-Emulator", VIDEO_WIDTH * PIXEL_SIZE, VIDEO_HEIGHT * PIXEL_SIZE, VIDEO_WIDTH, VIDEO_HEIGHT);
 
-	std::string romPath = "../roms/Pong.ch8";
+	std::string romPath = "../roms/testFlags.ch8";
 	memory.loadROM(romPath);
 
 	bool running = true;

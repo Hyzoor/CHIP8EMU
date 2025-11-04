@@ -4,6 +4,9 @@
 #include <SDL2/SDL.h>
 #include <map>
 
+#define VIDEO_WIDTH 64
+#define VIDEO_HEIGHT 32
+
 class Platform {
 
   public:
@@ -18,6 +21,7 @@ class Platform {
 	SDL_Window *window{};
 	SDL_Renderer *renderer{};
 	SDL_Texture *texture{};
+	uint8_t previousBuffer[VIDEO_WIDTH * VIDEO_HEIGHT]{};
 };
 
 #endif

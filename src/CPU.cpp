@@ -10,7 +10,7 @@ CPU::CPU(Memory &memory, Display &display, Keypad &keypad)
 	init();
 }
 
-CPU::~CPU(){};
+CPU::~CPU() {};
 
 void CPU::init() {
 	regI = 0;
@@ -19,6 +19,9 @@ void CPU::init() {
 	stackPointer = 0;
 	instruction = 0;
 	programCounter = 0x200;
+	for (int i = 0; i < sizeof(regV); i++) {
+		regV[i] = 0;
+	}
 }
 
 void CPU::clockCycle() {
@@ -70,8 +73,10 @@ void CPU::decodeExecuteInstruction() {
 			break;
 
 		case 0x4:
-			if (regV[x] != nn)
+			if (regV[x] != nn) {
 				programCounter += 2;
+			}
+
 			break;
 
 		case 0x5:
@@ -105,44 +110,50 @@ void CPU::decodeExecuteInstruction() {
 					regV[x] = regV[x] ^ regV[y];
 					break;
 
-				case 0x4:
-
-					if (regV[x] + regV[y] > 255)
-						regV[0xF] = 0x1; // Carry
-					else
-						regV[0xF] = 0x0;
-
-					regV[x] = regV[x] + regV[y];
+				case 0x4: {
+					uint16_t sum = regV[x] + regV[y];
+					regV[x] = sum & 0xFF;
+					regV[0xF] = (sum > 0xFF) ? 1 : 0;
 					break;
+				}
 
-				case 0x5:
+				case 0x5: {
+					uint16_t sub = (regV[x] - regV[y]);
+					bool carry = (regV[x] >= regV[y]);
+					regV[x] = sub & 0xFF;
+					regV[0xF] = (carry) ? 1 : 0;
 
-					if (regV[x] > regV[y])
-						regV[0xF] = 0x1; // Not borrow
-					else
-						regV[0xF] = 0x0;
-
-					regV[x] = regV[x] - regV[y];
 					break;
+				}
 
-				case 0x6:
-					regV[0xF] = (regV[x] & 0x01);
+				case 0x6: {
+					// regV[x] = regV[y];		Depends on quirks
+					uint8_t flag = regV[x] & 0x01;
 					regV[x] = regV[x] >> 1;
+
+					regV[0xF] = flag;
 					break;
+				}
 
-				case 0x7:
-					if (regV[y] > regV[x])
-						regV[0xF] = 0x1; // Not borrow
-					else
-						regV[0xF] = 0x0;
+				case 0x7: {
 
-					regV[x] = regV[y] - regV[x];
+					uint16_t sub = (regV[y] - regV[x]);
+					bool carry = (regV[y] >= regV[x]);
+
+					regV[x] = sub & 0xFF;
+
+					regV[0xF] = carry ? 1 : 0;
 					break;
+				}
 
-				case 0xE:
-					regV[0xF] = (regV[x] & 0x80) >> 7;
+				case 0xE: {
+
+					// regV[x] = regV[y];		Depends on quirks
+					uint8_t flag = (regV[x] & 0x80) >> 7;
 					regV[x] = regV[x] << 1;
+					regV[0xF] = flag;
 					break;
+				}
 
 				default:
 					// Invalid opcode

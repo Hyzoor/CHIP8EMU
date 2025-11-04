@@ -25,17 +25,27 @@ Platform::~Platform() {
 
 void Platform::Update(uint8_t *buffer) {
 	static uint32_t pixels[VIDEO_WIDTH * VIDEO_HEIGHT];
+	bool changedBuffer = false;
 
 	for (int y = 0; y < VIDEO_HEIGHT; y++) {
 		for (int x = 0; x < VIDEO_WIDTH; x++) {
-			pixels[y * VIDEO_WIDTH + x] = buffer[y * VIDEO_WIDTH + x] ? PixelON : PixelOFF;
+
+			int index = y * VIDEO_WIDTH + x;
+
+			if (buffer[index] != previousBuffer[index]) {
+				pixels[index] = buffer[index] ? PixelON : PixelOFF;
+				previousBuffer[index] = buffer[index];
+				SDL_UpdateTexture(texture, nullptr, pixels, VIDEO_WIDTH * sizeof(uint32_t));
+				changedBuffer = true;
+			}
 		}
 	}
 
-	SDL_UpdateTexture(texture, nullptr, pixels, VIDEO_WIDTH * sizeof(uint32_t));
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-	SDL_RenderPresent(renderer);
+	if (changedBuffer) {
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+		SDL_RenderPresent(renderer);
+	}
 }
 
 const std::map<SDL_Keycode, uint8_t> &Platform::getKeymap() {
