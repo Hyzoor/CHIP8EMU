@@ -1,9 +1,5 @@
 #include "../include/CPU.h"
-
-#include <cstdint>
 #include <cstdlib>
-#include <iostream>
-#include <stdexcept>
 
 CPU::CPU(Memory &memory, Display &display, Keypad &keypad)
     : RAM(memory), display(display), keypad(keypad) {
@@ -127,7 +123,6 @@ void CPU::decodeExecuteInstruction() {
 				}
 
 				case 0x6: {
-					// regV[x] = regV[y];		Depends on quirks
 					uint8_t flag = regV[x] & 0x01;
 					regV[x] = regV[x] >> 1;
 
@@ -148,7 +143,6 @@ void CPU::decodeExecuteInstruction() {
 
 				case 0xE: {
 
-					// regV[x] = regV[y];		Depends on quirks
 					uint8_t flag = (regV[x] & 0x80) >> 7;
 					regV[x] = regV[x] << 1;
 					regV[0xF] = flag;
@@ -319,8 +313,6 @@ uint8_t CPU::getNibble(int i) {
 		case 4:
 			nibble = instruction & 0x000F;
 			break;
-		default:
-			throw std::out_of_range("Nibble i must be 1-4");
 	}
 
 	return nibble;
